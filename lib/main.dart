@@ -52,66 +52,25 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isWorking = false;
   String result = '';
 
-  // loadModel() async {
-  //   // await Tflite.loadModel(model: 'assets/mobilenet_v1_1.0_224.tflite',
-  //   //   labels: 'assets/mobilenet_v1_1.0_224.txt',
-  //   // );
-  // }
+  @override
+  void initState() {
+    super.initState();
+    if (cameras != null && cameras!.isNotEmpty) {
+      cameraController = CameraController(cameras![0], ResolutionPreset.medium);
+      cameraController.initialize().then((_) {
+        if (!mounted) {
+          return;
+        }
+        setState(() {});
+      });
+    }
+  }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   // loadModel();
-  //   initcamers();
-  // }
-  //
-  // @override
-  // void dispose() async{
-  //   super.dispose();
-  //   cameraController.dispose();
-  //   // await Tflite.close();
-  // }
-  //
-  // Future<void> initcamers() async {
-  //   cameras = await availableCameras();
-  //   cameraController = CameraController(cameras![0], ResolutionPreset.medium);
-  //   await cameraController.initialize();
-  //   cameraController.startImageStream((imageFromStream) {
-  //     if (!isWorking) {
-  //       setState(() {
-  //         isWorking = true;
-  //         imagescam = imageFromStream;
-  //         // runModelOnStream();
-  //       });
-  //     }
-  //   });
-  // }
-
-  // runModelOnStream() async {
-  //   if (imagescam != null){
-  //     var recognition = await Tflite.runModelOnFrame(
-  //         bytesList: imagescam!.planes.map((plane){
-  //       return plane.bytes;
-  //     }).toList(),
-  //       imageHeight: imagescam!.height,
-  //       imageWidth: imagescam!.width,
-  //       imageMean: 127.5,
-  //       imageStd: 127.5,
-  //       rotation: 90,
-  //       numResults: 2,
-  //       threshold: 0.1,
-  //       asynch: true,
-  //     );
-  //     result = '';
-  //      recognition!.forEach((response) {
-  //        result += response["label"]+ " "+(["confidence"] as double).toStringAsFixed(2)+ "\n\n";
-  //      });
-  //      setState(() {
-  //        result;
-  //      });
-  //      isWorking = false;
-  //   }
-  // }
+  @override
+  void dispose() {
+    cameraController.dispose();
+    super.dispose();
+  }
 
   void onSendmassage() async {
     ChatModel model;
@@ -234,23 +193,19 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(),
       drawer: Drawer(
-          // Drawer code...
           ),
       body: Column(
         children: [
-          // SizedBox(
-          //   height: 10,
-          // ),
-          // if (imagescam != null)
-          //   Container(
-          //     margin: EdgeInsets.only(top: 35),
-          //     width: 350,
-          //     height: 350,
-          //     child: AspectRatio(
-          //       aspectRatio: cameraController.value.aspectRatio ?? 1.0,
-          //       child: CameraPreview(cameraController),
-          //     ),
-          //   ),
+          Expanded(
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                if (cameraController != null && cameraController.value.isInitialized)
+                  CameraPreview(cameraController),
+                // Add other widgets on top of the camera preview if needed
+              ],
+            ),
+          ),
           Expanded(
             child: ListView.builder(
               reverse: true,
@@ -289,14 +244,7 @@ class _MyHomePageState extends State<MyHomePage> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                // IconButton(
-                //   onPressed: () {
-                //     setState(() {
-                //       imagescam = imagescam == null ? imagescam : null;
-                //     });
-                //   },
-                //   icon: Icon(imagescam == null ? Icons.photo_camera : Icons.close),
-                // ),
+
                 IconButton(
                   onPressed: () {
                     selectimage();
