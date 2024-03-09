@@ -45,7 +45,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late CameraController cameraController;
-  // late CameraImage? imagescam;
   final TextEditingController controller = TextEditingController();
   File? image;
   List<ChatModel> chatlist = [];
@@ -70,6 +69,41 @@ class _MyHomePageState extends State<MyHomePage> {
   void dispose() {
     cameraController.dispose();
     super.dispose();
+  }
+
+  void onSendMessage() async {
+    // Your existing code
+  }
+
+  Future<void> takePicture() async {
+    try {
+      final XFile? picture = await cameraController.takePicture();
+      if (picture != null) {
+        setState(() {
+          image = File(picture.path);
+        });
+      }
+    } catch (e) {
+      print("Error taking picture: $e");
+    }
+  }
+
+  Future<void> startVideoRecording() async {
+    try {
+      final XFile? video =  await cameraController.startVideoRecording() as XFile?;
+      print("Video recording started: ${video?.path}");
+    } catch (e) {
+      print("Error starting video recording: $e");
+    }
+  }
+
+  Future<void> stopVideoRecording() async {
+    try {
+      final XFile? video = await cameraController.stopVideoRecording();
+      print("Video recording stopped: ${video?.path}");
+    } catch (e) {
+      print("Error stopping video recording: $e");
+    }
   }
 
   void onSendmassage() async {
@@ -194,7 +228,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(),
       drawer: Drawer(
           ),
-      body: Column(
+      body:  Column(
         children: [
           Expanded(
             child: Stack(
@@ -205,6 +239,33 @@ class _MyHomePageState extends State<MyHomePage> {
                 // Add other widgets on top of the camera preview if needed
               ],
             ),
+          ),
+          SizedBox(height: 10),
+          // Your existing UI code
+          if (image != null) Image.file(image!),
+          Row(
+            children: [
+              SizedBox(
+                width: 100,
+                child: ElevatedButton(
+                  onPressed: takePicture,
+                  child: Text("Take Picture"),
+                ),
+              ),
+              SizedBox(width: 100,
+                child: ElevatedButton(
+                  onPressed: startVideoRecording,
+                  child: Text("Start Recording"),
+                ),
+              ),
+              SizedBox(
+                width: 100,
+                child: ElevatedButton(
+                  onPressed: stopVideoRecording,
+                  child: Text("Stop Recording"),
+                ),
+              ),
+            ],
           ),
           Expanded(
             child: ListView.builder(
