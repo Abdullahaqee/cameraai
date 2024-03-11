@@ -39,6 +39,7 @@ dependencies:
   another_flutter_splash_screen: ^1.2.0
   http: any
   camera: ^0.10.5+9
+  flutter_tts: ^3.8.5
 
 
 dev_dependencies:
