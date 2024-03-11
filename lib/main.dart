@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cameraai/api_key.dart';
 import 'package:cameraai/splash%20screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'chat_model.dart';
 import 'package:http/http.dart' as http;
@@ -45,11 +46,19 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late CameraController cameraController;
+  late CameraImage? imagescam;
+  final FlutterTts flutter = FlutterTts();
   final TextEditingController controller = TextEditingController();
   File? image;
   List<ChatModel> chatlist = [];
   bool isWorking = false;
   String result = '';
+
+  speak(String text) async {
+    await flutter.setLanguage("en-US");
+    await flutter.setPitch(1);// 0.5 to 1.5
+    await flutter.speak(text);
+  }
 
   @override
   void initState() {
@@ -319,6 +328,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       hintText: "Type your message...",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(30)),
+                      ),
+                      suffixIcon: IconButton(
+                        onPressed: () => speak(controller.text),
+                        icon: Icon(Icons.speaker),
                       ),
                     ),
                   ),
