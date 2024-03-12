@@ -53,10 +53,11 @@ class _MyHomePageState extends State<MyHomePage> {
   List<ChatModel> chatlist = [];
   bool isWorking = false;
   String result = '';
+  bool showCameraPreview = false;
 
   speak(String text) async {
     await flutter.setLanguage("en-US");
-    await flutter.setPitch(1);// 0.5 to 1.5
+    await flutter.setPitch(1); // 0.5 to 1.5
     await flutter.speak(text);
   }
 
@@ -64,7 +65,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     if (cameras != null && cameras!.isNotEmpty) {
-      cameraController = CameraController(cameras![0], ResolutionPreset.medium);
+      cameraController =
+          CameraController(cameras![0], ResolutionPreset.medium);
       cameraController.initialize().then((_) {
         if (!mounted) {
           return;
@@ -80,9 +82,9 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-  void onSendMessage() async {
-    // Your existing code
-  }
+  // void onSendMessage() async {
+  //   // Your existing code
+  // }
 
   Future<void> takePicture() async {
     try {
@@ -96,6 +98,13 @@ class _MyHomePageState extends State<MyHomePage> {
       print("Error taking picture: $e");
     }
   }
+
+  void toggleCameraPreview() {
+    setState(() {
+      showCameraPreview = !showCameraPreview;
+    });
+  }
+
 
   Future<void> startVideoRecording() async {
     try {
@@ -229,53 +238,57 @@ class _MyHomePageState extends State<MyHomePage> {
     return geminiw;
   }
 
+
   void saveChat() {}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      drawer: Drawer(
-          ),
-      body:  Column(
+      drawer: Drawer(),
+      body: Column(
         children: [
-          Expanded(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                if (cameraController != null && cameraController.value.isInitialized)
+          if (showCameraPreview)
+            Expanded(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  if (cameraController.value.isInitialized)
                   CameraPreview(cameraController),
                 // Add other widgets on top of the camera preview if needed
               ],
             ),
           ),
-          SizedBox(height: 10),
-          // Your existing UI code
           if (image != null) Image.file(image!),
-          Row(
-            children: [
-              SizedBox(
-                width: 100,
-                child: ElevatedButton(
-                  onPressed: takePicture,
-                  child: Text("Take Picture"),
-                ),
+          Expanded(
+            child: Visibility(
+              visible: showCameraPreview,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Adjust alignment as needed
+                children: [
+                  SizedBox(
+                    child: ElevatedButton(
+                      onPressed: takePicture,
+                      child: Text("Take Picture"),
+                    ),
+                  ),
+                  SizedBox(
+                    child: ElevatedButton(
+                      onPressed: startVideoRecording,
+                      child: Text('start Recording'),
+                    ),
+                  ),
+                  SizedBox(
+                    child: ElevatedButton(
+                      onPressed: stopVideoRecording,// Add functionality for video recording
+                      child: Text('Stop Recodring'),
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(width: 100,
-                child: ElevatedButton(
-                  onPressed: startVideoRecording,
-                  child: Text("Start Recording"),
-                ),
-              ),
-              SizedBox(
-                width: 100,
-                child: ElevatedButton(
-                  onPressed: stopVideoRecording,
-                  child: Text("Stop Recording"),
-                ),
-              ),
-            ],
+            ),
           ),
+
           Expanded(
             child: ListView.builder(
               reverse: true,
@@ -314,7 +327,6 @@ class _MyHomePageState extends State<MyHomePage> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-
                 IconButton(
                   onPressed: () {
                     selectimage();
@@ -329,6 +341,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(30)),
                       ),
+                      prefixIcon: IconButton(onPressed: () => toggleCameraPreview(), icon: Icon(Icons.camera),),
                       suffixIcon: IconButton(
                         onPressed: () => speak(controller.text),
                         icon: Icon(Icons.speaker),
